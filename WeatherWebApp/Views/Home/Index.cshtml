@@ -12,7 +12,7 @@
                 <b>WeatherWebApp</b>
             </div>
             <div class="col-md-6">
-                
+
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-default " onclick="location.href = '@Url.Action("ShowSomeDayWeather",
                                                                                                           "Home",
@@ -36,7 +36,7 @@
             <div class="col-md-4">
                 <div class="text-center">
                     <div class="container-fluid">
-                      
+
                         @using (Html.BeginForm("SearchCityWeather", "Home", FormMethod.Post, new { Class = "form-horizontal" }))
                         {
                             <div class="form-group">
@@ -88,12 +88,13 @@
                         <div class="row">
                             <div class="col-md-2">
                                 <b>@Model.City.Name</b>
-                            </div>
-                            <div class="col-md-2">
                                 @list.Date().ToString("d.M dddd")
                             </div>
                             <div class="col-md-1">
                                 <img src=@list.Weather[0].IconLink()>
+                            </div>
+                            <div class="col-md-2">
+                                @list.Weather[0].Description
                             </div>
 
                             <div class="col-md-2">
