@@ -17,7 +17,7 @@ namespace WeatherWebApp.Managers
 {
     public class WeatherManager
     {
-        private static readonly ILogger _logger = DependencyResolver.Current.GetService<ILogger>();
+        private static readonly ILogger Logger = DependencyResolver.Current.GetService<ILogger>();
         //[Inject]
         //public static ILogger Logger { get; set; }
 
@@ -34,10 +34,10 @@ namespace WeatherWebApp.Managers
                 {
                     if (rootObject != null)
                     {
-                        _logger.Log(LogLevel.Info, $"Successfully got weather in {city}  for {count} days");
+                        Logger.Log(LogLevel.Info, $"Successfully got weather in {city}  for {count} days");
                         return rootObject;
                     }
-                    _logger.Log(LogLevel.Warning, $"Weather wanst got in {city}  for {count} days, retry in 5 seconds");
+                    Logger.Log(LogLevel.Warning, $"Weather wanst got in {city}  for {count} days, retry in 5 seconds");
                     System.Threading.Thread.Sleep(2000);
                     rootObject = JsonConvert.DeserializeObject<WeatherInfo.RootObject>(result);
                 }
@@ -45,11 +45,11 @@ namespace WeatherWebApp.Managers
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, $"City null reference");
+                Logger.Log(LogLevel.Error, $"City null reference");
                 return new WeatherInfo.RootObject();
             }
             
-            _logger.Log(LogLevel.Error, $"NULL Root Object");
+            Logger.Log(LogLevel.Error, $"NULL Root Object");
             return new WeatherInfo.RootObject();
         }
     }
