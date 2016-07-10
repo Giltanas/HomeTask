@@ -17,7 +17,6 @@ namespace WeatherWebApp.Managers
 {
     public class WeatherManager
     {
-        
         private static readonly ILogger _logger = DependencyResolver.Current.GetService<ILogger>();
         //[Inject]
         //public static ILogger Logger { get; set; }
@@ -39,7 +38,7 @@ namespace WeatherWebApp.Managers
                         return rootObject;
                     }
                     _logger.Log(LogLevel.Warning, $"Weather wanst got in {city}  for {count} days, retry in 5 seconds");
-                    System.Threading.Thread.Sleep(5000);
+                    System.Threading.Thread.Sleep(2000);
                     rootObject = JsonConvert.DeserializeObject<WeatherInfo.RootObject>(result);
                 }
 
