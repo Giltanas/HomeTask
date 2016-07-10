@@ -6,22 +6,21 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web;
+using System.Web.Mvc;
 using Newtonsoft.Json;
+using Ninject;
+using WeatherWebApp.Container;
 using WeatherWebApp.Models;
-using Image = System.Web.UI.WebControls.Image;
+using WeatherWebApp.Models.Logger;
 
 namespace WeatherWebApp.Managers
 {
     public class WeatherManager
     {
-        //public WeatherInfo.List GetCurentDayWeatherByCity(string city)
-        //{
-        //    string url = "http://api.openweathermap.org/data/2.5/forecast/daily?q=" + city + "&units=metric&cnt=1&APPID=da93bc68b89c625fc87562aa5ed53377";
-        //    var webClient = new WebClient();
-        //    var result = webClient.DownloadString(url);
-        //    var a = JsonConvert.DeserializeObject<WeatherInfo.RootObject>(result);
-        //    return a.List[0];
-        //}
+        
+        private static readonly ILogger _logger = DependencyResolver.Current.GetService<ILogger>();
+        //[Inject]
+        //public static ILogger Logger { get; set; }
 
         public static WeatherInfo.RootObject GetCountWeathersByCity(string city, int count)
         {
@@ -29,7 +28,30 @@ namespace WeatherWebApp.Managers
                          count + "&APPID=da93bc68b89c625fc87562aa5ed53377";
             var webClient = new WebClient();
             var result = webClient.DownloadString(url);
-            return JsonConvert.DeserializeObject<WeatherInfo.RootObject>(result);
+            try
+            {
+                var rootObject = JsonConvert.DeserializeObject<WeatherInfo.RootObject>(result);
+                for (int i = 0; i < 5; i++)
+                {
+                    if (rootObject != null)
+                    {
+                        _logger.Log(LogLevel.Info, $"Successfully got weather in {city}  for {count} days");
+                        return rootObject;
+                    }
+                    _logger.Log(LogLevel.Warning, $"Weather wanst got in {city}  for {count} days, retry in 5 seconds");
+                    System.Threading.Thread.Sleep(5000);
+                    rootObject = JsonConvert.DeserializeObject<WeatherInfo.RootObject>(result);
+                }
+
+            }
+            catch (Exception)
+            {
+                _logger.Log(LogLevel.Error, $"City null reference");
+                return new WeatherInfo.RootObject();
+            }
+            
+            _logger.Log(LogLevel.Error, $"NULL Root Object");
+            return new WeatherInfo.RootObject();
         }
     }
 }
