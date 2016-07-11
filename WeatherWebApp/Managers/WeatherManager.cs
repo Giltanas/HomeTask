@@ -27,6 +27,7 @@ namespace WeatherWebApp.Managers
                          count + "&APPID=da93bc68b89c625fc87562aa5ed53377";
             var webClient = new WebClient();
             var result = webClient.DownloadString(url);
+            webClient.Dispose();
             try
             {
                 var rootObject = JsonConvert.DeserializeObject<WeatherInfo.RootObject>(result);
@@ -48,7 +49,6 @@ namespace WeatherWebApp.Managers
                 Logger.Log(LogLevel.Error, $"City null reference");
                 return new WeatherInfo.RootObject();
             }
-            
             Logger.Log(LogLevel.Error, $"NULL Root Object");
             return new WeatherInfo.RootObject();
         }
