@@ -2,6 +2,7 @@
 @model WeatherInfo.RootObject
 @{
     ViewBag.Title = "Home Page";
+    
 }
 
 <div class="jumbotron">
@@ -51,30 +52,18 @@
                         }
 
                         <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-default btn-block" onclick="location.href = '@Url.Action("ShowSomeDayWeather",
+                            @foreach (var city in ViewBag.ListFavoriteCities)
+                            {
+                                <button type="button" class="btn btn-default btn-block" onclick="location.href = '@Url.Action("ShowSomeDayWeather",
                                                                                                                   "Home",
-                                                                                                                  new {Count = 1,City = "Kiev"})'">
-                                Kyiv
-                            </button>
-                            <button type="button" class="btn btn-default btn-block" onclick="location.href = '@Url.Action("ShowSomeDayWeather",
-                                                                                                                  "Home",
-                                                                                                                  new {Count = 1,City = "Lvov"})'">
-                                Lviv
-                            </button>
-                            <button type="button" class="btn btn-default btn-block" onclick="location.href = '@Url.Action("ShowSomeDayWeather",
-                                                                                                                  "Home",
-                                                                                                                  new {Count = 1,City = "Kharkov"})'">
-                                Kharkiv
-                            </button>
-                            <button type="button" class="btn btn-default btn-block" onclick="location.href = '@Url.Action("ShowSomeDayWeather",
-                                                                                                                  "Home",
-                                                                                                                  new {Count = 1,City = "Dnipropetrovsk"})'">
-                                Dnipro
-                            </button>
-                            <button type="button" class="btn btn-default btn-block" onclick="location.href = '@Url.Action("ShowSomeDayWeather",
-                                                                                                                  "Home",
-                                                                                                                  new {Count = 1,City = "Odessa"})'">
-                                Odessa
+                                                                                                                  new {Count = 1,City = @city.Name})'">
+                                   @city.Name
+                                </button>
+                            }
+                            <button type="button" class="btn btn-default btn-block" onclick="location.href = '@Url.Action("ShowUserCities",
+                                                                                                                  "Cities",
+                                                                                                                  new {userid = 1})'">
+                                Edit Favorite Cities
                             </button>
                         </div>
                     </div>

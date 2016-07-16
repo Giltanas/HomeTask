@@ -10,8 +10,7 @@ using System.Web;
 namespace WeatherWebApp.Models
 {
     public class WeatherInfo
-    {
-
+    { 
         public class Coord
         {
             public double Lon { get; set; }

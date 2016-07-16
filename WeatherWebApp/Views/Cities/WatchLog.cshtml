@@ -1,0 +1,26 @@
+﻿@model List<WeatherWebApp.Models.UserWeatherLog>
+@{
+
+}
+
+<div class="jumbotron">
+    Log
+    <li class="list-group-item">
+        @foreach (var log in Model)
+        {
+            <div class="row">
+                <div class="col-md-3">
+                    <h3>@log.CityName</h3>
+                </div>
+                <div class="col-md-3">
+                    <h3>@log.Date</h3>
+                </div>
+            </div>
+        }
+       <div class="row">
+            <button type="button" class="btn btn-default btn-block" onclick="location.href = '@Url.Action("ShowUserCities", "Cities",new {ViewBag.UserId})'">
+                Back
+            </button>
+        </div>
+    </li>
+</div>
