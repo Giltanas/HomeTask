@@ -13,6 +13,7 @@ using WeatherWebApp.Container;
 using WeatherWebApp.Context;
 using WeatherWebApp.Models;
 using WeatherWebApp.Models.Logger;
+using WeatherWebApp.ViewModels;
 
 namespace WeatherWebApp.Managers
 {
@@ -87,7 +88,7 @@ namespace WeatherWebApp.Managers
         {
             using (var context = new WeatherContext())
             {
-                context.Logs.Add(new UserWeatherLog()
+                context.Logs.Add(new ViewModelUserWeatherLog()
                 { UserId = userId,
                     CityId = cityId,
                     Date = DateTime.Now,
@@ -127,7 +128,7 @@ namespace WeatherWebApp.Managers
 
         }
 
-        public List<UserWeatherLog> GetUserLog(int userId)
+        public List<ViewModelUserWeatherLog> GetUserLog(int userId)
         {
             using (var context = new WeatherContext())
             {

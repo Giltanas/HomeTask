@@ -4,6 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
 using Newtonsoft.Json;
 using Ninject;
 using WeatherWebApp.Context;
@@ -56,6 +59,27 @@ namespace WeatherWebApp.Controllers
             Logger.Log(LogLevel.Debug, $"Getting page with weather in city with wrong name");
             ViewData["ListFavoriteCities"] = WeatherManager.GetUsersFavoriteCities(1);
             return View("Index", WeatherManager.GetCountWeathersByCity("Antananarivo", 1));
+        }
+        [HttpPost]
+        public ActionResult Login(LoginViewModel login)
+        {
+            if (ModelState.IsValid)
+            {
+                var userManager = HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
+                var authManager = HttpContext.GetOwinContext().Authentication;
+
+                User user = userManager.Find(login.UserName, login.Password);
+                if (user != null)
+                {
+                    var ident = userManager.CreateIdentity(user,
+                        DefaultAuthenticationTypes.ApplicationCookie);
+                    authManager.SignIn(
+                        new AuthenticationProperties { IsPersistent = false }, ident);
+                    return Redirect(login.ReturnUrl ?? Url.Action("Index", "Home"));
+                }
+            }
+            ModelState.AddModelError("", "Invalid username or password");
+            return System.Web.UI.WebControls.View(login);
         }
     }
 }
