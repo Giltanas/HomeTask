@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using WeatherWebApp.Models;
+using WeatherWebApp.ViewModels;
 
 namespace WeatherWebApp.Context
 {
@@ -21,7 +22,7 @@ namespace WeatherWebApp.Context
             modelBuilder.Entity<UserCity>().HasKey(e => new { e.UserId, e.CityId });
         }
 
-        public DbSet<UserWeatherLog> Logs { get; set; }
+        public DbSet<ViewModelUserWeatherLog> Logs { get; set; }
         public System.Data.Entity.DbSet<WeatherWebApp.Models.City> Cities { get; set; }
     }
 }
