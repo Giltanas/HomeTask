@@ -18,12 +18,12 @@ namespace WeatherWebApp
     {
         public void Configuration(IAppBuilder app)
         {
-            app.CreatePerOwinContext(() => new UserDbContext());
+            app.CreatePerOwinContext(() => new WeatherContext());
             app.CreatePerOwinContext<AppUserManager>(AppUserManager.Create);
-            app.CreatePerOwinContext<RoleManager<AppRole>>((options, context) =>
-                new RoleManager<AppRole>(
-                    new RoleStore<AppRole>(context.Get<UserDbContext>())));
-
+            //app.CreatePerOwinContext<RoleManager<AppRole>>((options, context) =>
+            //    new RoleManager<AppRole>(
+            //        new RoleStore<AppRole>(context.Get<WeatherContext>())));
+            app.CreatePerOwinContext<UserSignInManager>(UserSignInManager.Create);
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,

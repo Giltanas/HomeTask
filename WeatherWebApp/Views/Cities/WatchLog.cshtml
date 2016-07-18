@@ -1,12 +1,15 @@
-﻿@model List<WeatherWebApp.ViewModels.ViewModelUserWeatherLog>
-@{
+﻿@using Microsoft.AspNet.Identity
+@using Microsoft.AspNet.Identity.Owin
+@using WeatherWebApp.Managers
 
+@{
+    var user = Request.GetOwinContext().GetUserManager<AppUserManager>().FindById(User.Identity.GetUserId());
 }
 
 <div class="jumbotron">
-    Log
+    Logs
     <li class="list-group-item">
-        @foreach (var log in Model)
+        @foreach (var log in user.Logs)
         {
             <div class="row">
                 <div class="col-md-3">
@@ -18,7 +21,7 @@
             </div>
         }
        <div class="row">
-            <button type="button" class="btn btn-default btn-block" onclick="location.href = '@Url.Action("ShowUserCities", "Cities",new {ViewBag.UserId})'">
+            <button type="button" class="btn btn-default btn-block" onclick="location.href = '@Url.Action("ShowUserCities", "Cities")'">
                 Back
             </button>
         </div>

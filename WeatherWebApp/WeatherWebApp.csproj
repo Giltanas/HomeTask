@@ -210,30 +210,29 @@
     <Compile Include="App_Start\NinjectWebCommon.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Container\Ioc.cs" />
-    <Compile Include="Context\UserDbContext.cs" />
     <Compile Include="Context\WeatherContext.cs" />
     <Compile Include="Context\WeatherContextInitializer.cs" />
     <Compile Include="Controllers\CitiesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Managers\AppUserManager.cs" />
+    <Compile Include="Managers\UserSignInManager.cs" />
     <Compile Include="Managers\WeatherManager.cs" />
     <Compile Include="Models\AppRole.cs" />
     <Compile Include="Models\City.cs" />
+    <Compile Include="Models\Log.cs" />
     <Compile Include="Models\Logger\ConsoleLogger.cs" />
     <Compile Include="Models\Logger\DebugConsoleLogger.cs" />
     <Compile Include="Models\Logger\ILogger.cs" />
     <Compile Include="Models\Logger\LogLevel.cs" />
     <Compile Include="Models\Logger\TextLogger.cs" />
     <Compile Include="Models\User.cs" />
-    <Compile Include="Models\UserCity.cs" />
     <Compile Include="Models\WeatherInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ViewModels\LoginViewModel.cs" />
-    <Compile Include="ViewModels\ViewModelUserWeatherLog.cs" />
+    <Compile Include="ViewModels\UserLoginViewModel.cs" />
+    <Compile Include="ViewModels\UserRegistrationViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Images\cross.png" />
@@ -283,10 +282,11 @@
     <Content Include="Views\Cities\Index.cshtml" />
     <None Include="Views\Cities\FavoriteCities.cshtml" />
     <Content Include="Views\Cities\WatchLog.cshtml" />
+    <Content Include="Views\Home\Login.cshtml" />
+    <Content Include="Views\Home\Registrate.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Login\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

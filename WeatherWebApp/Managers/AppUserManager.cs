@@ -14,7 +14,7 @@ namespace WeatherWebApp.Managers
     public class AppUserManager : UserManager<User>
     {
         public AppUserManager(IUserStore<User> store)
-        : base(store)
+            : base(store)
         {
         }
 
@@ -23,11 +23,9 @@ namespace WeatherWebApp.Managers
             IdentityFactoryOptions<AppUserManager> options, IOwinContext context)
         {
             var manager = new AppUserManager(
-                new UserStore<User>(context.Get<UserDbContext>()));
-            
-            // optionally configure your manager
-            // ...
+                new UserStore<User>(context.Get<WeatherContext>()));
 
             return manager;
         }
+    }
 }

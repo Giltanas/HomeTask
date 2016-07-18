@@ -53,87 +53,37 @@ namespace WeatherWebApp.Managers
             return null;
         }
 
-        public List<City> GetUsersFavoriteCities(int id)
-        {
-
-            using (var context = new WeatherContext())
-            {
-                var list = context.UserCities.Where(item => item.UserId == id);
-                return  (from city in context.Cities from l in list where l.CityId == city.Id select city).ToList();
-            }
-        }
-
-        public void AddCityToUser(string cityName, int userId)
-        {
-            using (var context = new WeatherContext())
-            {
-                if (!context.Cities.Any(c => c.Name == cityName))
-                {
-                    context.Cities.Add(new City() {Name = cityName});
-                    context.SaveChanges();
-                }
-             
-
-                var cityId = context.Cities.First(c => c.Name.Equals(cityName)).Id;
-                if (!context.UserCities.Any(uc => uc.CityId == cityId && uc.UserId == userId))
-                {
-                    context.Users.First(u=> u.Id == userId).UserCities.Add(new UserCity() {UserId = userId,CityId = cityId});
-                    context.SaveChanges();
-                }
-
-            }
-        }
-
-        public void AddUserWeatherLog(int userId, int cityId)
-        {
-            using (var context = new WeatherContext())
-            {
-                context.Logs.Add(new ViewModelUserWeatherLog()
-                { UserId = userId,
-                    CityId = cityId,
-                    Date = DateTime.Now,
-                    CityName = context.Cities.First(c=> c.Id== cityId).Name
-                });
-                context.SaveChanges();
-            }
-        }
-
-        public void AddUserWeatherLog(int userId, string cityName)
-        {
-            int cityId;
-            using (var context = new WeatherContext())
-            {
-                cityId = context.Cities.First(c=> c.Name.Equals(cityName)).Id;
-            }
-            AddUserWeatherLog(userId,cityId);
-        }
-
         public void AddDefaultCities(User user)
         {
-            var kiev = new City() {Name = "Kiev"};
-            var lvov = new City() { Name = "Lvov" };
-            var kharkov = new City() { Name = "Kharkov" };
-            user.UserCities = new List<UserCity>();
-            user.UserCities.Add(new UserCity() {User = user, City = kiev, CityName = kiev.Name});
-            user.UserCities.Add(new UserCity() { User = user, City = lvov, CityName = lvov.Name });
-            user.UserCities.Add(new UserCity() { User= user, City = kharkov, CityName = kharkov.Name });
             using (var context = new WeatherContext())
             {
-                context.Cities.Add(kiev);
-                context.Cities.Add(lvov);
-                context.Cities.Add(kharkov);
-                context.Users.Add(user);
+                user.Cities = new List<City>
+                {
+                    context.Cities.First()
+                };
                 context.SaveChanges();
             }
-
         }
 
-        public List<ViewModelUserWeatherLog> GetUserLog(int userId)
+        public City GetCityByName(string cityName)
         {
-            using (var context = new WeatherContext())
+            try
             {
-                return context.Logs.Where(l => l.UserId == userId).ToList();
+                using (var context = new WeatherContext())
+                {
+                    return context.Cities.First(c => c.Name.Equals(cityName));
+                }
             }
+            catch (Exception)
+            {
+                City city = new City() {Name = cityName};
+                using (var context = new WeatherContext())
+                {
+                    context.Cities.Add(city);
+                    context.SaveChanges();
+                }
+                return city;
+            }   
         }
     }
 }

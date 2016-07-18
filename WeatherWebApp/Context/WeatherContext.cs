@@ -3,26 +3,36 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Web;
+using Microsoft.AspNet.Identity.EntityFramework;
 using WeatherWebApp.Models;
 using WeatherWebApp.ViewModels;
 
 namespace WeatherWebApp.Context
 {
-    public class WeatherContext : DbContext
+    public class WeatherContext : IdentityDbContext<User>
     {
-        public WeatherContext() : base()
+        public WeatherContext() : base("WeatherContext")
         {
             Database.SetInitializer<WeatherContext>(new WeatherContextInitializer());
         }
 
-        public DbSet<User> Users { get; set; }
-        public DbSet<UserCity> UserCities { get; set; }
+        public DbSet<Log> Logs { get; set; }
+        public DbSet<City> Cities { get; set; }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<UserCity>().HasKey(e => new { e.UserId, e.CityId });
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>()
+              .HasMany(u => u.Cities)
+              .WithMany(c => c.Users)
+              .Map(us =>
+              {
+                  us.MapLeftKey("UserId");
+                  us.MapRightKey("CityId");
+                  us.ToTable("UserCity");
+              });
         }
 
-        public DbSet<ViewModelUserWeatherLog> Logs { get; set; }
-        public System.Data.Entity.DbSet<WeatherWebApp.Models.City> Cities { get; set; }
+
     }
 }

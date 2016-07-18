@@ -5,10 +5,11 @@ using System.Web;
 
 namespace WeatherWebApp.Models
 {
-    public class City
+    public class Log
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public virtual ICollection<User> Users { get; set; } = new List<User>();
+        public string CityName { get; set; }
+        public User User { get; set; }
+        public DateTime Date { get; set; }
     }
 }

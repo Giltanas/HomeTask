@@ -12,9 +12,13 @@ namespace WeatherWebApp.Context
     {
         protected override void Seed(WeatherContext context)
         {
-          User user = new User() {Name = "Vasja"};
-            WeatherManager weatherManager = new WeatherManager();
-            weatherManager.AddDefaultCities(user);   
+            City city = new City() {Name = "Kiev"};
+            City city1 = new City() { Name = "Lvov" };
+            City city2 = new City() { Name = "Kharkov" };
+            context.Cities.Add(city);
+            context.Cities.Add(city1);
+            context.Cities.Add(city2);
+            context.SaveChanges();
         }
     }
 }
