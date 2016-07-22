@@ -44,15 +44,15 @@ namespace WeatherWebApp.Controllers
         {
             Logger.Log(LogLevel.Debug, "Getting start page");
             var rootObject = WeatherManager.GetCountWeathersByCity("Kiev", 1);
-            try
+            if (Request.IsAuthenticated)
             {
                 ViewData["ListFavoriteCities"] = AppUserManager.FindById(User.Identity.GetUserId()).Cities;
             }
-            catch (Exception)
+            else
             {
-
-                ViewData["ListFavoriteCities"] = new List<City>() {new City() {Name = "Kiev"} };
+                ViewData["ListFavoriteCities"] = new List<City>() { new City() { Name = "Kiev" }, new City() { Name = "Lvov" }, new City() { Name = "Kharkov" } };
             }
+
             return View("Index", rootObject);
         }
 
@@ -61,30 +61,37 @@ namespace WeatherWebApp.Controllers
             Logger.Log(LogLevel.Debug, $"Getting page with weather in {city} for {count} days");
             var rootObject = WeatherManager.GetCountWeathersByCity(city, count) ??
                              WeatherManager.GetCountWeathersByCity("Kiev", 1);
-            //ViewData["ListFavoriteCities"] = AppUserManager.FindById(User.Identity.GetUserId()).Cities;
-            var user = AppUserManager.FindById(User.Identity.GetUserId());
-            Request.GetOwinContext().Get<WeatherContext>().Entry(user).State = EntityState.Detached;
-            user.AddLog(city);
-            Request.GetOwinContext().Get<WeatherContext>().Users.Attach(user);
-            ViewData["ListFavoriteCities"] = user.Cities;
+
+
+            if (Request.IsAuthenticated)
+            {
+                var user = AppUserManager.FindById(User.Identity.GetUserId());
+                user.AddLog(city, Request.GetOwinContext().Get<WeatherContext>());
+                ViewData["ListFavoriteCities"] = AppUserManager.FindById(User.Identity.GetUserId()).Cities;
+            }
+            else
+            {
+                ViewData["ListFavoriteCities"] = new List<City>() { new City() { Name = "Kiev" }, new City() { Name = "Lvov" }, new City() { Name = "Kharkov" } };
+            }
             return View("Index", rootObject);
         }
 
         public ActionResult SearchCityWeather(string cityName)
         {
             var user = AppUserManager.FindById(User.Identity.GetUserId());
+            bool isAutentificated = Request.IsAuthenticated;
             if (ModelState.IsValid)
             {
                 Logger.Log(LogLevel.Debug, $"Getting page with weather in one of custom cities for days");
                 var rootObject = WeatherManager.GetCountWeathersByCity(cityName, 1) ??
                             WeatherManager.GetCountWeathersByCity("Kiev", 1);
-                Request.GetOwinContext().Get<WeatherContext>().Entry(user).State = EntityState.Detached;
-                user.AddLog(cityName);
-                ViewData["ListFavoriteCities"] = user.Cities;
+
+                ViewData["ListFavoriteCities"] = WeatherManager.WriteLogAndGetLoggedUserFavoriteCities(user, isAutentificated,
+                    Request.GetOwinContext().Get<WeatherContext>(), cityName);
                 return View("Index", rootObject);
             }
             Logger.Log(LogLevel.Debug, $"Getting page with weather in city with wrong name");
-            ViewData["ListFavoriteCities"] = user.Cities;
+            ViewData["ListFavoriteCities"] = WeatherManager.GetLoggedUserFavoriteCities(user, isAutentificated);
             return View("Index", WeatherManager.GetCountWeathersByCity("Antananarivo", 1));
         }
         [HttpGet]
@@ -96,21 +103,25 @@ namespace WeatherWebApp.Controllers
         [HttpPost]
         public ActionResult Login(UserLoginViewModel login)
         {
-
-                var signInManager = Request.GetOwinContext().Get<UserSignInManager>();
-                var result = signInManager.PasswordSignIn(login.Email, login.Password, shouldLockout: false, isPersistent: false);
-            switch (result)
+            if (ModelState.IsValid)
             {
-                case SignInStatus.Success:
-                    return RedirectToAction("Index", "Home");
-                case SignInStatus.LockedOut:
-                    return RedirectToAction("Index", "Home");
-                case SignInStatus.RequiresVerification:
-                    return RedirectToAction("Index", "Home");
-                default:
-                    ModelState.AddModelError("", "Error");
-                    return RedirectToAction("Login", "Home"); ;
+                var signInManager = Request.GetOwinContext().Get<UserSignInManager>();
+                var result = signInManager.PasswordSignIn(login.Email, login.Password, shouldLockout: false,
+                    isPersistent: false);
+                switch (result)
+                {
+                    case SignInStatus.Success:
+                        return RedirectToAction("Index", "Home");
+                    case SignInStatus.LockedOut:
+                        return RedirectToAction("Index", "Home");
+                    case SignInStatus.RequiresVerification:
+                        return RedirectToAction("Index", "Home");
+                    default:
+                        ModelState.AddModelError("", "Error");
+                        return RedirectToAction("Login", "Home");
+                }
             }
+            return RedirectToAction("Login", "Home");
         }
         [HttpGet]
         public ActionResult Registrate()
@@ -121,14 +132,25 @@ namespace WeatherWebApp.Controllers
         [HttpPost]
         public ActionResult Registrate(UserRegistrationViewModel vm)
         {
-            var user = new User() { UserName = vm.Email,Email = vm.Email};
-            WeatherManager.AddDefaultCities(user);
-            var result = AppUserManager.Create(user,vm.Password);
-            if (result.Succeeded)
+            if (ModelState.IsValid)
             {
-                return RedirectToAction("Index", "Home");
+                var user = new User() { UserName = vm.Email, Email = vm.Email };
+                WeatherManager.AddDefaultCities(user);
+                var result = AppUserManager.Create(user, vm.Password);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
             }
+
             return RedirectToAction("Registrate", "Home");
+        }
+
+        public ActionResult LogOut()
+        {
+            Request.GetOwinContext().Authentication.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+            return RedirectToAction("Index", "Home");
         }
     }
 }

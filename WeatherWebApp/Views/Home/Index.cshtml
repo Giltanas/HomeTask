@@ -59,10 +59,13 @@
                                    @city.Name
                                 </button>
                             }
-                            <button type="button" class="btn btn-default btn-block" onclick="location.href = '@Url.Action("ShowUserCities",
-                                                                                                                  "Cities")'">
-                                Edit Favorite Cities
-                            </button>
+                            @if (Request.IsAuthenticated)
+                            {
+                                <button type="button" class="btn btn-default btn-block" onclick="location.href = '@Url.Action("ShowUserCities",
+                                                                                                "Cities")'">
+                                    Edit Favorite Cities
+                                </button>
+                            }
                         </div>
                     </div>
                 </div>

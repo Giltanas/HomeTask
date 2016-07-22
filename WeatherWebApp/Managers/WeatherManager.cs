@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.Owin;
 using Newtonsoft.Json;
 using Ninject;
 using WeatherWebApp.Container;
@@ -84,6 +85,30 @@ namespace WeatherWebApp.Managers
                 }
                 return city;
             }   
+        }
+
+        public List<City> WriteLogAndGetLoggedUserFavoriteCities(User user, bool isAutentificated, WeatherContext context, string city)
+        {
+            if (isAutentificated)
+            {
+                user.AddLog(city, context);
+               return user.Cities.ToList();
+            }
+            else
+            {
+                return new List<City>() { new City() { Name = "Kiev" }, new City() { Name = "Lvov" }, new City() { Name = "Kharkov" } };
+            }
+        }
+        public List<City> GetLoggedUserFavoriteCities(User user, bool isAutentificated)
+        {
+            if (isAutentificated)
+            {
+                return user.Cities.ToList();
+            }
+            else
+            {
+                return new List<City>() { new City() { Name = "Kiev" }, new City() { Name = "Lvov" }, new City() { Name = "Kharkov" } };
+            }
         }
     }
 }

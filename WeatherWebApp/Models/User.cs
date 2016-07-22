@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.Owin;
 using Ninject.Activation;
 using WeatherWebApp.Context;
 using WeatherWebApp.Managers;
@@ -15,7 +16,7 @@ namespace WeatherWebApp.Models
         public virtual ICollection<City> Cities { get; set; }
         public virtual List<Log> Logs { get; set; }
 
-        public void AddLog(string cityName)
+        public void AddLog(string cityName, WeatherContext context)
         {
             if (Logs == null)
             {
@@ -23,8 +24,8 @@ namespace WeatherWebApp.Models
             }
             var log = new Log() { CityName = cityName, Date = DateTime.Now };
             
-         //   Request.GetOwinContext().Get<WeatherContext>().Entry(user).State = EntityState.Detached;
-
+            context.Entry(this).State = EntityState.Detached;
+            
             using (var db = new WeatherContext())
             {
                 db.Logs.Attach(log);
@@ -36,6 +37,7 @@ namespace WeatherWebApp.Models
                 log.User = this;
                 db.SaveChanges();
             }
+            context.Users.Attach(this);
         }
         }
 }
