@@ -17,7 +17,7 @@ namespace WeatherWebApp.Models
         public virtual ICollection<City> Cities { get; set; }
         public virtual List<Log> Logs { get; set; }
 
-        public async Task AddLog(string cityName, WeatherContext context)
+        public async Task<User> AddLog(string cityName, WeatherContext context)
         {
             if (Logs == null)
             {
@@ -38,7 +38,7 @@ namespace WeatherWebApp.Models
                 log.User = this;
                 await db.SaveChangesAsync();
             }
-        //    context.Users.Attach(this);
+            return this;
         }
         }
 }

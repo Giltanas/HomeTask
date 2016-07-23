@@ -51,17 +51,10 @@ namespace WeatherWebApp.Controllers
         {
             var user = await AppUserManager.FindByIdAsync(User.Identity.GetUserId());
             Request.GetOwinContext().Get<WeatherContext>().Entry(user).State = EntityState.Detached;
-            var city = await WeatherManager.GetCityByNameAsync(name);
             using (var db = new WeatherContext())
             {
-
-                db.Cities.Attach(city);
-                db.Users.Attach(user);
-
-                user.Cities.Add(city);
-                city.Users.Add(user);
-
-                await db.SaveChangesAsync();
+                var city = await WeatherManager.GetCityByNameOrAddNewCityAsync(db,name); ;
+                await WeatherManager.AddUserCityAsync(user, city, db);
             }
             ViewData["FavoriteCities"] = user.Cities;
             return View("FavoriteCities");
@@ -72,14 +65,11 @@ namespace WeatherWebApp.Controllers
         {
             var user = await AppUserManager.FindByIdAsync(User.Identity.GetUserId());
             Request.GetOwinContext().Get<WeatherContext>().Entry(user).State = EntityState.Detached;
-            var city = await WeatherManager.GetCityByNameAsync(cityName);
 
             using (var db = new WeatherContext())
             {
-                
-                user.Cities.Remove(city);
-                city.Users.Remove(user);
-                await db.SaveChangesAsync();
+                var city = await WeatherManager.GetCityByNameOrAddNewCityAsync(db,cityName);
+                await WeatherManager.RemoveUserCityAsync(user, city, db);
             }
             ViewData["FavoriteCities"] = AppUserManager.FindById(User.Identity.GetUserId()).Cities;
             return View("FavoriteCities");

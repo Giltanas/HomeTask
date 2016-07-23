@@ -86,10 +86,11 @@ namespace WeatherWebApp.Controllers
             if (Request.IsAuthenticated)
             {
                 Logger.Log(LogLevel.Debug, $"Getting page with weather in one of custom cities for days");
-                
 
-                ViewData["ListFavoriteCities"] = WeatherManager.WriteLogAndGetLoggedUserFavoriteCitiesAsync(user, isAutentificated,
+                await WeatherManager.WriteLogAsync(user, isAutentificated,
                     Request.GetOwinContext().Get<WeatherContext>(), cityName);
+                user = await AppUserManager.FindByIdAsync(User.Identity.GetUserId());
+                ViewData["ListFavoriteCities"] = user.Cities;
                 return View("Index", rootObject);
             }
             Logger.Log(LogLevel.Debug, $"Getting page with weather in city with wrong name");

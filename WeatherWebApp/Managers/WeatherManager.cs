@@ -64,16 +64,16 @@ namespace WeatherWebApp.Managers
             {
                 user.Cities = new List<City>
                 {
-                    await context.Cities.FirstOrDefaultAsync()
-                };
+                    new City() {Name = "Kiev"},
+                new City() { Name = "Lvov" },
+                 new City() { Name = "Kharkov" }
+            };
                 await context.SaveChangesAsync();
             }
         }
 
-        public async Task<City> GetCityByNameAsync(string cityName)
+        public async Task<City> GetCityByNameOrAddNewCityAsync(WeatherContext context,string cityName)
         {
-            using (var context = new WeatherContext())
-            {
                 var city = await context.Cities.FirstOrDefaultAsync(c => c.Name.Equals(cityName));
                 if (city == null)
                 {
@@ -81,21 +81,11 @@ namespace WeatherWebApp.Managers
                     context.Cities.Add(city);
                     await context.SaveChangesAsync();
                 }
-                return city;
-            }
+                return city;           
         }
-
-        public async Task<List<City>> WriteLogAndGetLoggedUserFavoriteCitiesAsync(User user, bool isAutentificated, WeatherContext context, string city)
+        public async Task<User> WriteLogAsync(User user, bool isAutentificated, WeatherContext context, string city)
         {
-            if (isAutentificated)
-            {
-                await user.AddLog(city, context);
-                return user.Cities.ToList();
-            }
-            else
-            {
-                return new List<City>() { new City() { Name = "Kiev" }, new City() { Name = "Lvov" }, new City() { Name = "Kharkov" } };
-            }
+              return  await user.AddLog(city, context);
         }
         public List<City> GetLoggedUserFavoriteCities(User user, bool isAutentificated)
         {
@@ -104,6 +94,27 @@ namespace WeatherWebApp.Managers
                 return user.Cities.ToList();
             }
             return new List<City>() { new City() { Name = "Kiev" }, new City() { Name = "Lvov" }, new City() { Name = "Kharkov" } };
+        }
+
+        public async Task AddUserCityAsync(User user, City city, WeatherContext context)
+        {
+            context.Cities.Attach(city);
+            context.Users.Attach(user);
+
+            user.Cities.Add(city);
+            city.Users.Add(user);
+
+            await context.SaveChangesAsync();
+        }
+        public async Task RemoveUserCityAsync(User user, City city, WeatherContext context)
+        {
+            context.Cities.Attach(city);
+            context.Users.Attach(user);
+
+            user.Cities.Remove(city);
+            city.Users.Remove(user);
+
+            await context.SaveChangesAsync();
         }
     }
 }
