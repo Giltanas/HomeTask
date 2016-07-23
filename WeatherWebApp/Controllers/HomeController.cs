@@ -111,6 +111,7 @@ namespace WeatherWebApp.Controllers
                 var signInManager = Request.GetOwinContext().Get<UserSignInManager>();
                 var result = signInManager.PasswordSignIn(login.Email, login.Password, shouldLockout: false,
                     isPersistent: false);
+                
                 switch (result)
                 {
                     case SignInStatus.Success:
@@ -120,11 +121,11 @@ namespace WeatherWebApp.Controllers
                     case SignInStatus.RequiresVerification:
                         return RedirectToAction("Index", "Home");
                     default:
-                        ModelState.AddModelError("", "Error");
-                        return RedirectToAction("Login", "Home");
+                        ModelState.AddModelError("", "Wrong email or password");
+                        return View(login);
                 }
             }
-            return RedirectToAction("Login", "Home");
+            return View(login);
         }
         [HttpGet]
         public ActionResult Registrate()
@@ -146,8 +147,8 @@ namespace WeatherWebApp.Controllers
                 }
 
             }
-
-            return RedirectToAction("Registrate", "Home");
+            
+            return View(vm);
         }
 
         public ActionResult LogOut()

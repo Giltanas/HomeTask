@@ -50,11 +50,16 @@ namespace WeatherWebApp.Controllers
         public async Task<ActionResult> AddCity(string name)
         {
             var user = await AppUserManager.FindByIdAsync(User.Identity.GetUserId());
-            Request.GetOwinContext().Get<WeatherContext>().Entry(user).State = EntityState.Detached;
-            using (var db = new WeatherContext())
+
+            if (ModelState.IsValid)
             {
-                var city = await WeatherManager.GetCityByNameOrAddNewCityAsync(db,name); ;
-                await WeatherManager.AddUserCityAsync(user, city, db);
+                Request.GetOwinContext().Get<WeatherContext>().Entry(user).State = EntityState.Detached;
+                using (var db = new WeatherContext())
+                {
+                    var city = await WeatherManager.GetCityByNameOrAddNewCityAsync(db, name);
+                    await WeatherManager.AddUserCityAsync(user, city, db);
+                }
+
             }
             ViewData["FavoriteCities"] = user.Cities;
             return View("FavoriteCities");

@@ -20,7 +20,7 @@
                     <h3>@city.Name</h3>
                 </div>
                 <div class="col-md-3">
-                    <a href="@Url.Action("Delete", "Cities", new {cityid = city.Id})"> <img src="@Url.Content("~/Content/Images/cross.png")" /></a>
+                    <a href="@Url.Action("Delete", "Cities", new {cityName = city.Name})"> <img src="@Url.Content("~/Content/Images/cross.png")" /></a>
                 </div>
             </div>
         }
