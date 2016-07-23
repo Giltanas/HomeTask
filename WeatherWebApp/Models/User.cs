@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin;
@@ -16,7 +17,7 @@ namespace WeatherWebApp.Models
         public virtual ICollection<City> Cities { get; set; }
         public virtual List<Log> Logs { get; set; }
 
-        public void AddLog(string cityName, WeatherContext context)
+        public async Task AddLog(string cityName, WeatherContext context)
         {
             if (Logs == null)
             {
@@ -35,9 +36,9 @@ namespace WeatherWebApp.Models
                 Logs.Add(log);
 
                 log.User = this;
-                db.SaveChanges();
+                await db.SaveChangesAsync();
             }
-            context.Users.Attach(this);
+        //    context.Users.Attach(this);
         }
         }
 }

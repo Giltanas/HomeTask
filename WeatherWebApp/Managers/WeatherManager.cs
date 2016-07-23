@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.Owin;
@@ -22,22 +25,23 @@ namespace WeatherWebApp.Managers
     {
         private static readonly ILogger Logger = DependencyResolver.Current.GetService<ILogger>();
 
-        public WeatherInfo.RootObject GetCountWeathersByCity(string city, int count)
+        public async Task<WeatherInfo.RootObject> GetCountWeathersByCityAsync(string city, int count)
         {
 
             for (int i = 0; i < 5; i++)
             {
                 string url = "http://api.openweathermap.org/data/2.5/forecast/daily?q=" + city + "&units=metric&cnt=" +
                              count + "&APPID=da93bc68b89c625fc87562aa5ed53377";
-                var webClient = new WebClient();
+
                 try
                 {
-                    var result = webClient.DownloadString(url);
-                webClient.Dispose();
-                
-                    var rootObject = JsonConvert.DeserializeObject<WeatherInfo.RootObject>(result);
-                    Logger.Log(LogLevel.Info, $"Successfully got weather in {city}  for {count} days");
-                    return rootObject;
+                    using (var client = new HttpClient())
+                    {
+                        var result = await client.GetStringAsync(url);
+                        var rootObject = JsonConvert.DeserializeObject<WeatherInfo.RootObject>(result);
+                        Logger.Log(LogLevel.Info, $"Successfully got weather in {city}  for {count} days");
+                        return rootObject;
+                    }
                 }
                 catch (Exception e)
                 {
@@ -45,54 +49,48 @@ namespace WeatherWebApp.Managers
                     if (i != 4)
                     {
                         Logger.Log(LogLevel.Warning,
-                            $"Weather wanst got in {city}  for {count} days, retry in 5 seconds");
+                            $"Weather wanst got in {city}  for {count} days, retry in 2 seconds");
                         System.Threading.Thread.Sleep(2000);
-                    }        
+                    }
                 }
             }
             Logger.Log(LogLevel.Error, $"Connectrion problems");
             return null;
         }
 
-        public void AddDefaultCities(User user)
+        public async Task AddDefaultCitiesAsync(User user)
         {
             using (var context = new WeatherContext())
             {
                 user.Cities = new List<City>
                 {
-                    context.Cities.First()
+                    await context.Cities.FirstOrDefaultAsync()
                 };
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
 
-        public City GetCityByName(string cityName)
+        public async Task<City> GetCityByNameAsync(string cityName)
         {
-            try
+            using (var context = new WeatherContext())
             {
-                using (var context = new WeatherContext())
+                var city = await context.Cities.FirstOrDefaultAsync(c => c.Name.Equals(cityName));
+                if (city == null)
                 {
-                    return context.Cities.First(c => c.Name.Equals(cityName));
-                }
-            }
-            catch (Exception)
-            {
-                City city = new City() {Name = cityName};
-                using (var context = new WeatherContext())
-                {
+                    city = new City() { Name = cityName };
                     context.Cities.Add(city);
-                    context.SaveChanges();
+                    await context.SaveChangesAsync();
                 }
                 return city;
-            }   
+            }
         }
 
-        public List<City> WriteLogAndGetLoggedUserFavoriteCities(User user, bool isAutentificated, WeatherContext context, string city)
+        public async Task<List<City>> WriteLogAndGetLoggedUserFavoriteCitiesAsync(User user, bool isAutentificated, WeatherContext context, string city)
         {
             if (isAutentificated)
             {
-                user.AddLog(city, context);
-               return user.Cities.ToList();
+                await user.AddLog(city, context);
+                return user.Cities.ToList();
             }
             else
             {
@@ -105,10 +103,7 @@ namespace WeatherWebApp.Managers
             {
                 return user.Cities.ToList();
             }
-            else
-            {
-                return new List<City>() { new City() { Name = "Kiev" }, new City() { Name = "Lvov" }, new City() { Name = "Kharkov" } };
-            }
+            return new List<City>() { new City() { Name = "Kiev" }, new City() { Name = "Lvov" }, new City() { Name = "Kharkov" } };
         }
     }
 }

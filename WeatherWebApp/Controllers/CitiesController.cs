@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
@@ -40,17 +41,17 @@ namespace WeatherWebApp.Controllers
         }
 
 
-        public ActionResult ShowUserCities()
+        public async Task<ActionResult> ShowUserCities()
         {
-            ViewData["FavoriteCities"] = AppUserManager.FindById(User.Identity.GetUserId()).Cities; 
+            ViewData["FavoriteCities"] = (await AppUserManager.FindByIdAsync(User.Identity.GetUserId())).Cities; 
             return View("FavoriteCities");
         }
 
-        public ActionResult AddCity(string name)
+        public async Task<ActionResult> AddCity(string name)
         {
-            var user = AppUserManager.FindById(User.Identity.GetUserId());
+            var user = await AppUserManager.FindByIdAsync(User.Identity.GetUserId());
             Request.GetOwinContext().Get<WeatherContext>().Entry(user).State = EntityState.Detached;
-            var city = WeatherManager.GetCityByName(name);
+            var city = await WeatherManager.GetCityByNameAsync(name);
             using (var db = new WeatherContext())
             {
 
@@ -60,33 +61,33 @@ namespace WeatherWebApp.Controllers
                 user.Cities.Add(city);
                 city.Users.Add(user);
 
-                db.SaveChanges();
+                await db.SaveChangesAsync();
             }
             ViewData["FavoriteCities"] = user.Cities;
             return View("FavoriteCities");
         }
 
         // GET: Cities/Delete/5
-        public ActionResult Delete(string cityName)
+        public async Task<ActionResult> Delete(string cityName)
         {
-            var user = AppUserManager.FindById(User.Identity.GetUserId());
+            var user = await AppUserManager.FindByIdAsync(User.Identity.GetUserId());
             Request.GetOwinContext().Get<WeatherContext>().Entry(user).State = EntityState.Detached;
-            var city = WeatherManager.GetCityByName(cityName);
+            var city = await WeatherManager.GetCityByNameAsync(cityName);
 
             using (var db = new WeatherContext())
             {
                 
                 user.Cities.Remove(city);
                 city.Users.Remove(user);
-                db.SaveChanges();
+                await db.SaveChangesAsync();
             }
             ViewData["FavoriteCities"] = AppUserManager.FindById(User.Identity.GetUserId()).Cities;
             return View("FavoriteCities");
         }
 
-        public ActionResult WatchLog()
+        public async Task<ActionResult> WatchLog()
         {
-            var user = AppUserManager.FindById(User.Identity.GetUserId());
+            var user = await AppUserManager.FindByIdAsync(User.Identity.GetUserId());
             return View();
         }
     }

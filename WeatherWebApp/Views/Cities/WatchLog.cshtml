@@ -3,7 +3,7 @@
 @using WeatherWebApp.Managers
 
 @{
-    var user = Request.GetOwinContext().GetUserManager<AppUserManager>().FindById(User.Identity.GetUserId());
+    var user =  Request.GetOwinContext().GetUserManager<AppUserManager>().FindById(User.Identity.GetUserId());
 }
 
 <div class="jumbotron">
