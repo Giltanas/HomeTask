@@ -111,7 +111,6 @@ namespace WeatherWebApp.Controllers
                 var signInManager = Request.GetOwinContext().Get<UserSignInManager>();
                 var result = signInManager.PasswordSignIn(login.Email, login.Password, shouldLockout: false,
                     isPersistent: false);
-                
                 switch (result)
                 {
                     case SignInStatus.Success:
@@ -145,9 +144,7 @@ namespace WeatherWebApp.Controllers
                 {
                     return RedirectToAction("Index", "Home");
                 }
-
             }
-            
             return View(vm);
         }
 
