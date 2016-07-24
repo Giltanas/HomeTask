@@ -96,15 +96,22 @@ namespace WeatherWebApp.Managers
             return new List<City>() { new City() { Name = "Kiev" }, new City() { Name = "Lvov" }, new City() { Name = "Kharkov" } };
         }
 
-        public async Task AddUserCityAsync(User user, City city, WeatherContext context)
+        public async Task<bool> AddUserCityAsync(User user, City city, WeatherContext context)
         {
+           
             context.Cities.Attach(city);
             context.Users.Attach(user);
+
+            if (user.Cities.Contains(city))
+            {
+                return false;
+            }
 
             user.Cities.Add(city);
             city.Users.Add(user);
 
             await context.SaveChangesAsync();
+            return true;
         }
         public async Task RemoveUserCityAsync(User user, City city, WeatherContext context)
         {

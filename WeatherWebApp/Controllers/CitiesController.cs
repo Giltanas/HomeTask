@@ -54,16 +54,20 @@ namespace WeatherWebApp.Controllers
 
             if (ModelState.IsValid)
             {
+                
                 Request.GetOwinContext().Get<WeatherContext>().Entry(user).State = EntityState.Detached;
                 using (var db = new WeatherContext())
                 {
                     var city = await WeatherManager.GetCityByNameOrAddNewCityAsync(db, modelCity.Name);
-                    await WeatherManager.AddUserCityAsync(user, city, db);
+                    if (!await WeatherManager.AddUserCityAsync(user, city, db))
+                    {
+                        ModelState.AddModelError("","You have already added this city ");
+                    }
                 }
-
             }
+            
             ViewData["FavoriteCities"] = user.Cities;
-            return View("FavoriteCities");
+            return View("FavoriteCities",modelCity);
         }
 
         // GET: Cities/Delete/5
