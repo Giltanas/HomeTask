@@ -22,12 +22,15 @@ namespace WeatherWebApp.Controllers
     public class HomeController : Controller
     {
         private AppUserManager _userManager;
+        private readonly ILogger _logger;
+        private readonly WeatherManager _weatherManager;
 
-        [Inject]
-        public ILogger Logger { get; set; }
-
-        [Inject]
-        public WeatherManager WeatherManager { get; set; }
+        public HomeController(ILogger logger, WeatherManager weatherManager)
+        {
+            _logger = logger;
+            _weatherManager = weatherManager;
+            
+        }
 
         public AppUserManager AppUserManager
         {
@@ -40,11 +43,13 @@ namespace WeatherWebApp.Controllers
                 _userManager = value;
             }
         }
+
         [HttpGet]
         public async Task<ActionResult> Index()
         {
-            Logger.Log(LogLevel.Debug, "Getting start page");
-            var rootObject = await WeatherManager.GetCountWeathersByCityAsync("Kiev", 1);
+            _logger.Log(LogLevel.Debug, "Getting start page");
+            var weatherContainer = await _weatherManager.GetCountWeathersByCityAsync("Kiev", 1);
+
             if (Request.IsAuthenticated)
             {
                 ViewData["ListFavoriteCities"] = (await AppUserManager.FindByIdAsync(User.Identity.GetUserId())).Cities;
@@ -54,14 +59,14 @@ namespace WeatherWebApp.Controllers
                 ViewData["ListFavoriteCities"] = new List<City>() { new City() { Name = "Kiev" }, new City() { Name = "Lvov" }, new City() { Name = "Kharkov" } };
             }
 
-            return View("Index", rootObject);
+            return View("Index", weatherContainer);
         }
-
+        //[HttpGet]
         public async Task<ActionResult> ShowSomeDayWeather(int count, string city)
         {
-            Logger.Log(LogLevel.Debug, $"Getting page with weather in {city} for {count} days");
-            var rootObject = await WeatherManager.GetCountWeathersByCityAsync(city, count) ??
-                             await WeatherManager.GetCountWeathersByCityAsync("Kiev", 1);
+            _logger.Log(LogLevel.Debug, $"Getting page with weather in {city} for {count} days");
+            var weatherContainer = await _weatherManager.GetCountWeathersByCityAsync(city, count) ??
+                             await _weatherManager.GetCountWeathersByCityAsync("Kiev", 1);
 
 
             if (Request.IsAuthenticated)
@@ -74,28 +79,28 @@ namespace WeatherWebApp.Controllers
             {
                 ViewData["ListFavoriteCities"] = new List<City>() { new City() { Name = "Kiev" }, new City() { Name = "Lvov" }, new City() { Name = "Kharkov" } };
             }
-            return View("Index", rootObject);
+            return View("Index", weatherContainer);
         }
-
+        //[HttpGet]
         public async Task<ActionResult> SearchCityWeather(string cityName)
         {
             var user = await AppUserManager.FindByIdAsync(User.Identity.GetUserId());
             bool isAutentificated = Request.IsAuthenticated;
-            var rootObject = await WeatherManager.GetCountWeathersByCityAsync(cityName, 1) ??
-                            await WeatherManager.GetCountWeathersByCityAsync("Kiev", 1);
+            var weatherContainer = await _weatherManager.GetCountWeathersByCityAsync(cityName, 1) ??
+                            await _weatherManager.GetCountWeathersByCityAsync("Kiev", 1);
             if (Request.IsAuthenticated)
             {
-                Logger.Log(LogLevel.Debug, $"Getting page with weather in one of custom cities for days");
+                _logger.Log(LogLevel.Debug, $"Getting page with weather in one of custom cities for days");
 
-                await WeatherManager.WriteLogAsync(user, isAutentificated,
+                await _weatherManager.WriteLogAsync(user, isAutentificated,
                     Request.GetOwinContext().Get<WeatherContext>(), cityName);
                 user = await AppUserManager.FindByIdAsync(User.Identity.GetUserId());
                 ViewData["ListFavoriteCities"] = user.Cities;
-                return View("Index", rootObject);
+                return View("Index", weatherContainer);
             }
-            Logger.Log(LogLevel.Debug, $"Getting page with weather in city with wrong name");
+            _logger.Log(LogLevel.Debug, $"Getting page with weather in city with wrong name");
             ViewData["ListFavoriteCities"] = new List<City>() { new City() { Name = "Kiev" }, new City() { Name = "Lvov" }, new City() { Name = "Kharkov" } };
-            return View("Index", rootObject);
+            return View("Index", weatherContainer);
         }
         [HttpGet]
         public ActionResult Login()
@@ -138,7 +143,7 @@ namespace WeatherWebApp.Controllers
             if (ModelState.IsValid)
             {
                 var user = new User() { UserName = vm.Email, Email = vm.Email };
-                await WeatherManager.AddDefaultCitiesAsync(user);
+                await _weatherManager.AddDefaultCitiesAsync(user);
                 var result =  await AppUserManager.CreateAsync(user, vm.Password);
                 if (result.Succeeded)
                 {

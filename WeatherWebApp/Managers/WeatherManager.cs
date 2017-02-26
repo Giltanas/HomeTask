@@ -23,12 +23,17 @@ namespace WeatherWebApp.Managers
 {
     public class WeatherManager
     {
-        private static readonly ILogger Logger = DependencyResolver.Current.GetService<ILogger>();
+        private readonly ILogger _logger;
 
-        public async Task<WeatherInfo.RootObject> GetCountWeathersByCityAsync(string city, int count)
+        public WeatherManager(ILogger logger)
+        {
+            _logger = logger;
+        }
+
+        public async Task<WeatherInfo.WeatherContainer> GetCountWeathersByCityAsync(string city, int count)
         {
 
-            for (int i = 0; i < 5; i++)
+            for (var i = 0; i < 5; i++)
             {
                 string url = "http://api.openweathermap.org/data/2.5/forecast/daily?q=" + city + "&units=metric&cnt=" +
                              count + "&APPID=da93bc68b89c625fc87562aa5ed53377";
@@ -38,23 +43,23 @@ namespace WeatherWebApp.Managers
                     using (var client = new HttpClient())
                     {
                         var result = await client.GetStringAsync(url);
-                        var rootObject = JsonConvert.DeserializeObject<WeatherInfo.RootObject>(result);
-                        Logger.Log(LogLevel.Info, $"Successfully got weather in {city}  for {count} days");
+                        var rootObject = JsonConvert.DeserializeObject<WeatherInfo.WeatherContainer>(result);
+                        _logger.Log(LogLevel.Info, $"Successfully got weather in {city}  for {count} days");
                         return rootObject;
                     }
                 }
                 catch (Exception e)
                 {
-                    Logger.Log(LogLevel.Error, e.Message);
+                    _logger.Log(LogLevel.Error, e.Message);
                     if (i != 4)
                     {
-                        Logger.Log(LogLevel.Warning,
+                        _logger.Log(LogLevel.Warning,
                             $"Weather wanst got in {city}  for {count} days, retry in 2 seconds");
                         System.Threading.Thread.Sleep(2000);
                     }
                 }
             }
-            Logger.Log(LogLevel.Error, $"Connectrion problems");
+            _logger.Log(LogLevel.Error, $"Connectrion problems");
             return null;
         }
 

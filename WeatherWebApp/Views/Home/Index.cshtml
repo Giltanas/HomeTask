@@ -1,5 +1,5 @@
 ﻿@using WeatherWebApp.Models
-@model WeatherInfo.RootObject
+@model WeatherInfo.WeatherContainer
 @{
     
 }
@@ -71,7 +71,7 @@
                 </div>
             </div>
             <div class="col-md-8">
-                @foreach (var list in @Model.List)
+                @foreach (var list in @Model.AllDaysWeatherList)
                 {
 
                     <li class="list-group-item">
@@ -117,7 +117,7 @@
                             <div class="col-md-2">
                             </div>
                             <div class="col-md-2">
-                                @list.Temp.Morn °C
+                                @list.Temperature.Morn °C
                             </div>
                         </div>
                     </li>
@@ -137,7 +137,7 @@
                             <div class="col-md-2">
                             </div>
                             <div class="col-md-2">
-                                @list.Temp.Day °C
+                                @list.Temperature.Day °C
                             </div>
                         </div>
                     </li>
@@ -157,7 +157,7 @@
                             <div class="col-md-2">
                             </div>
                             <div class="col-md-2">
-                                @list.Temp.Eve °C
+                                @list.Temperature.Eve °C
                             </div>
                         </div>
                     </li>
@@ -175,7 +175,7 @@
                             <div class="col-md-2">
                             </div>
                             <div class="col-md-2">
-                                @list.Temp.Night °C
+                                @list.Temperature.Night °C
                             </div>
                         </div>
                     </li>

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Policy;
 using System.Web;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace WeatherWebApp.Models
 {
@@ -25,8 +27,8 @@ namespace WeatherWebApp.Models
             public string Country { get; set; }
             public int Population { get; set; }
         }
-
-        public class Temp
+        [JsonObject(Title = "Temp")]
+        public class Temperature
         {
             public double Day { get; set; }
             public double Min { get; set; }
@@ -36,7 +38,7 @@ namespace WeatherWebApp.Models
             public double Morn { get; set; }
         }
 
-        public class Weather
+        public class OneDayIntervalWeather
         {
             public int Id { get; set; }
             public string Main { get; set; }
@@ -48,14 +50,21 @@ namespace WeatherWebApp.Models
                 return "http://openweathermap.org/img/w/" + Icon + ".png";
             }
         }
-
-        public class List
+        [JsonObject(Title = "List")]
+        public class OneDayWeather
         {
+            private Temperature _temperature;
             public int Dt { get; set; }
-            public Temp Temp { get; set; }
+
+            public Temperature Temperature
+            {
+                get { return _temperature ?? new Temperature(); }
+                set { _temperature = value; }
+            }
+
             public double Pressure { get; set; }
             public int Humidity { get; set; }
-            public List<Weather> Weather { get; set; }
+            public List<OneDayIntervalWeather> Weather { get; set; }
             public double Speed { get; set; }
             public int Deg { get; set; }
             public int Clouds { get; set; }
@@ -72,14 +81,15 @@ namespace WeatherWebApp.Models
                 return (int)Pressure*3/4;
             }
         }
-
-        public class RootObject
+        [JsonObject(Title = "RootObject")]
+        public class WeatherContainer
         {
             public City City { get; set; }
             public string Cod { get; set; }
             public double Message { get; set; }
             public int Cnt { get; set; }
-            public List<List> List { get; set; }
+
+            public List<OneDayWeather> AllDaysWeatherList { get; set; }
 
             [Required(ErrorMessage = "Please,enter city name")]
             public string CityName { get; set; }
