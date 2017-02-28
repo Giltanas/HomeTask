@@ -8,6 +8,7 @@ using System.Security.Policy;
 using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using WeatherWebApp.Models.Dt;
 
 namespace WeatherWebApp.Models
 {
@@ -17,6 +18,13 @@ namespace WeatherWebApp.Models
         {
             public double Lon { get; set; }
             public double Lat { get; set; }
+
+            public Coord FromDto(WeatherContainerDto.CoordDto dto)
+            {
+                Lon = dto.lon;
+                Lat = dto.lat;
+                return this;
+            }
         }
 
         public class City
@@ -25,7 +33,16 @@ namespace WeatherWebApp.Models
             public string Name { get; set; }
             public Coord Coord { get; set; }
             public string Country { get; set; }
-            public int Population { get; set; }
+
+
+            public City FromDto(WeatherContainerDto.CityDto dto)
+            {
+                Id = dto.id;
+                Name = dto.name;
+                Coord = new Coord().FromDto(dto.coord);
+                Country = dto.country;
+                return this;
+            }
         }
         [JsonObject(Title = "Temp")]
         public class Temperature
@@ -36,18 +53,36 @@ namespace WeatherWebApp.Models
             public double Night { get; set; }
             public double Eve { get; set; }
             public double Morn { get; set; }
+
+            public Temperature FromDto(WeatherContainerDto.TemperatureDto dto)
+            {
+                Day = dto.day;
+                Min = dto.min;
+                Max = dto.max;
+                Night = dto.night;
+                Eve = dto.eve;
+                Morn = dto.morn;
+                return this;
+            }
         }
 
-        public class OneDayIntervalWeather
+        public class Weather
         {
             public int Id { get; set; }
-            public string Main { get; set; }
             public string Description { get; set; }
             public string Icon { get; set; }
 
             public string IconLink()
             {
-                return "http://openweathermap.org/img/w/" + Icon + ".png";
+                return $"http://openweathermap.org/img/w/{Icon}.png";
+            }
+
+            public Weather FromDto(WeatherContainerDto.WeatherDto dto)
+            {
+                Id = dto.id;
+                Description = dto.description;
+                Icon = dto.icon;
+                return this;
             }
         }
         [JsonObject(Title = "List")]
@@ -64,12 +99,13 @@ namespace WeatherWebApp.Models
 
             public double Pressure { get; set; }
             public int Humidity { get; set; }
-            public List<OneDayIntervalWeather> Weather { get; set; }
-            public double Speed { get; set; }
-            public int Deg { get; set; }
-            public int Clouds { get; set; }
-            public double? Rain { get; set; }
 
+            public List<Weather> Weather { get; set; } = new List<Weather>();
+
+            public double WindSpeed { get; set; }
+            public int WindDeg { get; set; }
+            public int Clouds { get; set; }
+            
             public DateTime Date()
             {
                 DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
@@ -80,19 +116,44 @@ namespace WeatherWebApp.Models
             {
                 return (int)Pressure*3/4;
             }
+
+            public OneDayWeather FromDto(WeatherContainerDto.OneDayWeatherDto dto)
+            {
+                Temperature = new Temperature().FromDto(dto.temp);
+                Pressure = dto.pressure;
+                Humidity = dto.humidity;
+                WindSpeed = dto.speed;
+                Clouds = dto.clouds;
+                Dt = dto.dt;
+                foreach (var weatherDto in dto.weather)
+                {
+                    Weather.Add(new Weather().FromDto(weatherDto));
+                }
+                return this;
+            }
         }
         [JsonObject(Title = "RootObject")]
         public class WeatherContainer
         {
             public City City { get; set; }
-            public string Cod { get; set; }
-            public double Message { get; set; }
-            public int Cnt { get; set; }
+            //public string Cod { get; set; }
+            //public double Message { get; set; }
+            //public int Cnt { get; set; }
 
-            public List<OneDayWeather> AllDaysWeatherList { get; set; }
+            public List<OneDayWeather> AllDaysWeatherList { get; set; } = new List<OneDayWeather>();
 
             [Required(ErrorMessage = "Please,enter city name")]
             public string CityName { get; set; }
+
+            public WeatherContainer FromDto(WeatherContainerDto dto)
+            {
+                City = new City().FromDto(dto.city);
+                foreach (var oneDayWeatherDto in dto.list)
+                {
+                    AllDaysWeatherList.Add(new OneDayWeather().FromDto(oneDayWeatherDto));
+                }
+                return this;
+            }
         }
     }
 }

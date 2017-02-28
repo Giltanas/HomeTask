@@ -222,6 +222,7 @@
     <Compile Include="Managers\WeatherManager.cs" />
     <Compile Include="Models\AppRole.cs" />
     <Compile Include="Models\City.cs" />
+    <Compile Include="Models\Dt\WeatherContainerDto.cs" />
     <Compile Include="Models\Log.cs" />
     <Compile Include="Models\Logger\ConsoleLogger.cs" />
     <Compile Include="Models\Logger\DebugConsoleLogger.cs" />

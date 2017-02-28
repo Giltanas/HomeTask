@@ -16,6 +16,7 @@ using Ninject;
 using WeatherWebApp.Container;
 using WeatherWebApp.Context;
 using WeatherWebApp.Models;
+using WeatherWebApp.Models.Dt;
 using WeatherWebApp.Models.Logger;
 using WeatherWebApp.ViewModels;
 
@@ -43,9 +44,11 @@ namespace WeatherWebApp.Managers
                     using (var client = new HttpClient())
                     {
                         var result = await client.GetStringAsync(url);
-                        var rootObject = JsonConvert.DeserializeObject<WeatherInfo.WeatherContainer>(result);
+                        var weatherContainerDto = JsonConvert.DeserializeObject<WeatherContainerDto>(result);
+                        var weatherContainer = new WeatherInfo.WeatherContainer().FromDto(weatherContainerDto);
                         _logger.Log(LogLevel.Info, $"Successfully got weather in {city}  for {count} days");
-                        return rootObject;
+                        
+                        return weatherContainer;
                     }
                 }
                 catch (Exception e)
@@ -71,7 +74,7 @@ namespace WeatherWebApp.Managers
                 {
                     new City() {Name = "Kiev"},
                 new City() { Name = "Lvov" },
-                 new City() { Name = "Kharkov" }
+                 new City() { Name = "Irpin" }
             };
                 await context.SaveChangesAsync();
             }
