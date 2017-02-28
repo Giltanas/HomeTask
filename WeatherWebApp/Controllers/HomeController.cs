@@ -65,6 +65,7 @@ namespace WeatherWebApp.Controllers
         public async Task<ActionResult> ShowSomeDayWeather(int count, string city)
         {
             _logger.Log(LogLevel.Debug, $"Getting page with weather in {city} for {count} days");
+
             var weatherContainer = await _weatherManager.GetCountWeathersByCityAsync(city, count) ??
                              await _weatherManager.GetCountWeathersByCityAsync("Kiev", 1);
 

@@ -51,13 +51,13 @@ namespace WeatherWebApp.Managers
                         return weatherContainer;
                     }
                 }
-                catch (Exception e)
+                catch (NullReferenceException e)
                 {
                     _logger.Log(LogLevel.Error, e.Message);
                     if (i != 4)
                     {
                         _logger.Log(LogLevel.Warning,
-                            $"Weather wanst got in {city}  for {count} days, retry in 2 seconds");
+                            $"Cant get weather in {city}  for {count} days, retry in 2 seconds");
                         System.Threading.Thread.Sleep(2000);
                     }
                 }

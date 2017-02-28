@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 
 namespace WeatherWebApp.Models.Dt
 {
+    [JsonObject(Title = "RootObject")]
     public class WeatherContainerDto
     {
 
@@ -32,12 +33,12 @@ namespace WeatherWebApp.Models.Dt
         [JsonObject(Title = "Temp")]
         public class TemperatureDto
         {
-            public int day { get; set; }
-            public int min { get; set; }
-            public int max { get; set; }
-            public int night { get; set; }
-            public int eve { get; set; }
-            public int morn { get; set; }
+            public double day { get; set; }
+            public double min { get; set; }
+            public double max { get; set; }
+            public double night { get; set; }
+            public double eve { get; set; }
+            public double morn { get; set; }
         }
         [JsonObject(Title = "Weather")]
         public class WeatherDto
