@@ -26,7 +26,7 @@ namespace WeatherWebApp.Container
         }
         private void AddBindings()
         {
-            _kernel.Bind<ILogger>().To<DebugConsoleLogger>().InSingletonScope();
+            _kernel.Bind<ILogger>().To<DebugConsoleLogger>().InTransientScope();
 
         }
     }

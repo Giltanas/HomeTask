@@ -19,7 +19,7 @@ namespace WeatherWebApp.Models
             public double Lon { get; set; }
             public double Lat { get; set; }
 
-            public Coord FromDto(WeatherContainerDto.CoordDto dto)
+            public Coord FromDto(CoordDto dto)
             {
                 Lon = dto.lon;
                 Lat = dto.lat;
@@ -35,7 +35,7 @@ namespace WeatherWebApp.Models
             public string Country { get; set; }
 
 
-            public City FromDto(WeatherContainerDto.CityDto dto)
+            public City FromDto(CityDto dto)
             {
                 Id = dto.id;
                 Name = dto.name;
@@ -54,7 +54,7 @@ namespace WeatherWebApp.Models
             public double Eve { get; set; }
             public double Morn { get; set; }
 
-            public Temperature FromDto(WeatherContainerDto.TemperatureDto dto)
+            public Temperature FromDto(TemperatureDto dto)
             {
                 Day = dto.day;
                 Min = dto.min;
@@ -77,7 +77,7 @@ namespace WeatherWebApp.Models
                 return $"http://openweathermap.org/img/w/{Icon}.png";
             }
 
-            public Weather FromDto(WeatherContainerDto.WeatherDto dto)
+            public Weather FromDto(WeatherDto dto)
             {
                 Id = dto.id;
                 Description = dto.description;
@@ -117,7 +117,7 @@ namespace WeatherWebApp.Models
                 return (int)Pressure*3/4;
             }
 
-            public OneDayWeather FromDto(WeatherContainerDto.OneDayWeatherDto dto)
+            public OneDayWeather FromDto(OneDayWeatherDto dto)
             {
                 Temperature = new Temperature().FromDto(dto.temp);
                 Pressure = dto.pressure;

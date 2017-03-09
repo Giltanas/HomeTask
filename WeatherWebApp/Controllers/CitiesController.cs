@@ -21,8 +21,12 @@ namespace WeatherWebApp.Controllers
         
         private AppUserManager _userManager;
 
-        [Inject]
-        public WeatherManager WeatherManager { get; set; }
+        private readonly WeatherManager _weatherManager;
+
+        public CitiesController(WeatherManager weatherManager)
+        {
+            _weatherManager = weatherManager;
+        }
         public AppUserManager AppUserManager
         {
             get
@@ -58,8 +62,8 @@ namespace WeatherWebApp.Controllers
                 Request.GetOwinContext().Get<WeatherContext>().Entry(user).State = EntityState.Detached;
                 using (var db = new WeatherContext())
                 {
-                    var city = await WeatherManager.GetCityByNameOrAddNewCityAsync(db, modelCity.Name);
-                    if (!await WeatherManager.AddUserCityAsync(user, city, db))
+                    var city = await _weatherManager.GetCityByNameOrAddNewCityAsync(db, modelCity.Name);
+                    if (!await _weatherManager.AddUserCityAsync(user, city, db))
                     {
                         ModelState.AddModelError("","You have already added this city ");
                     }
@@ -78,8 +82,8 @@ namespace WeatherWebApp.Controllers
 
             using (var db = new WeatherContext())
             {
-                var city = await WeatherManager.GetCityByNameOrAddNewCityAsync(db,cityName);
-                await WeatherManager.RemoveUserCityAsync(user, city, db);
+                var city = await _weatherManager.GetCityByNameOrAddNewCityAsync(db,cityName);
+                await _weatherManager.RemoveUserCityAsync(user, city, db);
             }
             ViewData["FavoriteCities"] = AppUserManager.FindById(User.Identity.GetUserId()).Cities;
             return View("FavoriteCities");
